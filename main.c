@@ -24,19 +24,23 @@ Vector* createVector(int capacity) {
     return v;
 }
 
+int vectorResize(Vector* v, size_t capacity) {
+    if(!v) return -1;
+    if(capacity < v->item_count || capacity * sizeof(int) > SIZE_MAX || capacity < 1) return - 1;
+
+    int* new_data = realloc(v->data, sizeof(int) * capacity);
+    if(!new_data) return -1;
+
+    v->data     = new_data;
+    v->capacity = capacity;
+    return 0;
+}
+
 int pushVector(Vector* v, int data) {
     if(!v) return -1;
 
     if(v->item_count >= v->capacity) {
-        if(v->capacity > SIZE_MAX / 2) return -1;
-        size_t  new_capacity   = v->capacity * 2;
-
-        if(new_capacity * sizeof(int) > SIZE_MAX) return -1;
-        int* new_data = realloc(v->data, sizeof(int) * new_capacity);
-
-        if(!new_data) return -1;
-        v->data     = new_data;
-        v->capacity = new_capacity;
+        vectorResize(v, v->capacity * 2);
     }
 
     v->data[v->item_count++] = data;
@@ -51,11 +55,11 @@ void popVector(Vector* v) {
     }
 }
 
-int* vectorGetAt(Vector* v, size_t index) {
+int vectorGetAt(Vector* v, size_t index) {
     if(!v || index >= v->item_count) {
         return NULL;
     }
-    return &v->data[index];
+    return v->data[index];
 }
 
 void destroyVector(Vector* v) {
